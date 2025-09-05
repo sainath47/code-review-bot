@@ -48,6 +48,12 @@ functions:
       - httpApi:
           path: /crb/git-webhook
           method: get
+  getAccessToken:
+    handler: src/handler.getAccessToken
+    events:
+      - httpApi:
+          path: /crb/get-access-token
+          method: get
 
 resources:
   Resources:

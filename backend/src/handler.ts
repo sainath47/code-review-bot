@@ -1,5 +1,3 @@
-
-
 // import {
 //   DynamoDBClient
 // } from "@aws-sdk/client-dynamodb";
@@ -14,8 +12,6 @@
 
 // const client = new DynamoDBClient({});
 // const docClient = DynamoDBDocumentClient.from(client);
-
-
 
 // // ---------------- GET User ----------------
 // app.get("/users/:userId", async (req: Request, res: Response) => {
@@ -74,37 +70,84 @@
 //   res.status(404).json({ error: "Not Found" });
 // });
 
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { response } from "express";
+// import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+// import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 
+// const ddbClient = new DynamoDBClient({ region: "ap-south-1" });
+// const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+// const tableName = process.env.TABLE_NAME || "ecommerce-products-dev";
 
-
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-
-const ddbClient = new DynamoDBClient({ region: 'ap-south-1' });
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-const tableName = process.env.TABLE_NAME || 'ecommerce-products-dev';
+const CLIENT_ID = "Ov23liRvM5jyoUAhaWRL";
+const CLIENT_SECRET = "1fc7e832f9273d006a3ebd9cb49fcc3c529bf3f2";
 
 // POST /products
-export const gitWebhook = async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
+export const gitWebhook = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   try {
-
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Seeded and fetched' }),
+      body: JSON.stringify({ message: "Seeded and fetched" }),
     };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Error', error: (error as Error).message }),
+      body: JSON.stringify({
+        message: "Error",
+        error: (error as Error).message,
+      }),
+    };
+  }
+};
+
+export const getAccessToken = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  try {
+    console.log(event.queryStringParameters?.code);
+
+    const params =
+      "?client_id=" +
+      CLIENT_ID +
+      "&client_secret=" +
+      CLIENT_SECRET +
+      "&code=" +
+      event.queryStringParameters?.code;
+   const data =  await fetch("https://github.com/login/oauth/access_token" + params,{
+      method: "POST",
+      headers:{
+        Accept: "application/json"
+      }
+    }).then((response)=>{
+      return response.json()
+    })
+    // .then((data)=>{
+    //      return {
+    //   statusCode: 200,
+    //   body: JSON.stringify({data }),
+    // };
+    // })
+
+     return {
+      statusCode: 200,
+      body: JSON.stringify({data }),
+    };
+
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Error",
+        error: (error as Error).message,
+      }),
     };
   }
 };
 
 // Default export
-export default { gitWebhook, 
-  // addProduct, 
-  
-  // seedProducts
-
+export default {
+  gitWebhook,
+  getAccessToken,
 };
