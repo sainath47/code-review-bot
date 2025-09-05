@@ -42,10 +42,12 @@ custom:
 
 
 functions:
-  api:
-    handler: src/handler.handler
+  gitWebhook:
+    handler: src/handler.gitWebhook
     events:
-      - httpApi: "*"
+      - httpApi:
+          path: /crb/git-webhook
+          method: get
 
 resources:
   Resources:

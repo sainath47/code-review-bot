@@ -1,8 +1,4 @@
-import express, { Request, Response } from "express";
-import serverless from "serverless-http";
 
-const app = express();
-app.use(express.json());
 
 // import {
 //   DynamoDBClient
@@ -80,15 +76,35 @@ app.use(express.json());
 
 
 
-// ---------------- GET User ----------------
-app.get("/git-webhook", async (req: Request, res: Response) => {
 
-    res.status(500).json({ res: "hello from the code-reviewer",method: req.method,
-  path: req.path,
-  headers: req.headers,
-  body: req.body, });
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+
+const ddbClient = new DynamoDBClient({ region: 'ap-south-1' });
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+const tableName = process.env.TABLE_NAME || 'ecommerce-products-dev';
+
+// POST /products
+export const gitWebhook = async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
+  try {
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Seeded and fetched' }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error', error: (error as Error).message }),
+    };
+  }
+};
+
+// Default export
+export default { gitWebhook, 
+  // addProduct, 
   
-});
+  // seedProducts
 
-
-export const handler = serverless(app);
+};
